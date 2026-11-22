@@ -7,9 +7,9 @@ description: Critically analyse an implementation and produce a design document 
 
 ## Overview
 
-Critically analyse the implementation of a system and produce a design document at `design/design-details/` that details the key design contributions, how they are innovative, and how they address the challenges framed in the paper introduction. Every innovation claim must be grounded either in the system's own source/design files or in published related work from the paper vault at `vault/paper-writer/`.
+Critically analyse the implementation of a system and produce a design document at `{paths.design_dir}/` that details the key design contributions, how they are innovative, and how they address the challenges framed in the paper introduction. Every innovation claim must be grounded either in the system's own source/design files or in published related work from the paper vault at `{paths.vault}/`.
 
-Takes a system location and optional extra instructions as input (`$ARGUMENTS`). Reads architecture/design `.md` files in the target system, extracts challenges and solution framework from `paper/intro.tex`, grounds each innovation against the paper vault (falling back to `/paper-writer:paper-search` when the vault is too thin), and writes an Obsidian-style design document linked from `design/design-details/root.md`.
+Takes a system location and optional extra instructions as input (`$ARGUMENTS`). Reads architecture/design `.md` files in the target system, extracts challenges and solution framework from `{paths.paper_dir}/intro.tex`, grounds each innovation against the paper vault (falling back to `/paper-writer:paper-search` when the vault is too thin), and writes an Obsidian-style design document linked from `{paths.design_dir}/root.md`.
 
 ## Instruction priority
 
@@ -21,6 +21,16 @@ The priority of instructions in this skill, highest to lowest:
 
 If the user's prompt in `$ARGUMENTS` conflicts with any step below, follow the user and note the deviation in the final report.
 
+## Configuration
+
+Before step 1, resolve the project configuration:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" config dump
+```
+
+It prints the project's `paper-writer.toml` settings as JSON, or the defaults when the project has none. Throughout this skill, `{paths.*}`, `{paper.*}` and `{venues.*}` stand for values from that output: substitute them before running any command or writing any prompt. Lists such as `{venues.preferred_tier}` are written comma-separated. Run commands from `project_root`. `pw.py vault` commands already use `{paths.vault}` as the vault root.
+
 ## Steps
 
 1. **Parse arguments.** Extract from `$ARGUMENTS`: (a) the **system directory** to review (an absolute or project-relative path; required), and (b) any extra instructions, focus areas, or design points the user wants emphasised. If the directory is not stated, print an error asking for it and stop. Keep the extra instructions in working context — they take priority over every subsequent step in this skill.
@@ -28,12 +38,12 @@ If the user's prompt in `$ARGUMENTS` conflicts with any step below, follow the u
 2. **Validate the paper focus file.** The paper introduction is a hard prerequisite. Run:
 
    ```bash
-   test -f paper/intro.tex && echo OK || echo MISSING
+   test -f {paths.paper_dir}/intro.tex && echo OK || echo MISSING
    ```
 
-   If MISSING, print a loud error stating that `paper/intro.tex` is required and **stop** without writing any files. Otherwise, use Read to load its full contents.
+   If MISSING, print a loud error stating that `{paths.paper_dir}/intro.tex` is required and **stop** without writing any files. Otherwise, use Read to load its full contents.
 
-3. **Extract challenges and solution framework from `paper/intro.tex`.** Pull out, into working memory:
+3. **Extract challenges and solution framework from `{paths.paper_dir}/intro.tex`.** Pull out, into working memory:
    - The named challenges — typically the lead `\textbf{...}` of each challenge paragraph (e.g., "Deep human expertise", "Low dynamism and adaptability", "Poor accessibility").
    - The solution insight paragraph and the named solution components (e.g., `\textbf{Autonomous Network Construction}`, `\textbf{Autonomous Network Programming}`).
    - The system `\name`.
@@ -49,7 +59,7 @@ If the user's prompt in `$ARGUMENTS` conflicts with any step below, follow the u
 
 5. **Read the design material.** Use Read to load every architecture/design `.md` file from step 4 in full. Then skim source entry points and top-level directory READMEs only as needed to disambiguate or verify specific design claims. The goal is a concrete, verifiable mental model of the architecture. Do not fabricate details that are not present in the files you read.
 
-6. **Derive the system short name.** Follow the steps in `/paper-writer:paper-name` to extract the `\name` value from `paper/main.tex`. Sanitize it into a filename-safe stem with no spaces (e.g., `Acme`). If `/paper-writer:paper-name` cannot resolve a name, fall back to the basename of the system directory from step 1. Call the result `<SystemName>`. The design document will live at `design/design-details/<SystemName>.md`.
+6. **Derive the system short name.** Follow the steps in `/paper-writer:paper-name` to extract the `\name` value from `{paths.main_tex}`. Sanitize it into a filename-safe stem with no spaces (e.g., `Acme`). If `/paper-writer:paper-name` cannot resolve a name, fall back to the basename of the system directory from step 1. Call the result `<SystemName>`. The design document will live at `{paths.design_dir}/<SystemName>.md`.
 
 7. **Identify 2–5 candidate design innovations.** Based on steps 3 and 5, draft an internal list of candidate innovations. For each candidate, write down: a short feature name, a one-sentence goal, a crisp claim about *what specifically* is novel, and the challenge(s) from step 3 it addresses. **Prioritize high-impact design points.** Drop any candidate whose novelty claim cannot be stated concretely. Two strong innovations are worth more than five weak ones.
 
@@ -86,7 +96,7 @@ If the user's prompt in `$ARGUMENTS` conflicts with any step below, follow the u
    > For each candidate, read its `## Abstract` section to judge fit — `## Relevance` describes relevance to the leaf topic it is attached to, not to this innovation. Good candidates are papers that make genuine contributions but leave a gap the innovation fills:
    > - Propose partial solutions (address one aspect but not another)
    > - Represent the state of the art that this innovation goes beyond
-   > - Come from top-tier venues (SIGCOMM, OSDI, NSDI, SOSP, ASPLOS, MobiCom, CoNEXT, EuroSys) where possible — check `- **Venue**:`
+   > - Come from top-tier venues ({venues.preferred_tier}) where possible — check `- **Venue**:`
    >
    > For each selected paper, output a structured block:
    > ```
@@ -105,9 +115,9 @@ If the user's prompt in `$ARGUMENTS` conflicts with any step below, follow the u
 
 10. **Expand the vault if an innovation is underfed.** If any innovation returns fewer than **2** usable related papers from step 9b, invoke `/paper-writer:paper-search` (follow the steps in that skill) with the innovation's 2–3 topic phrases. This writes new papers into the vault. Then re-run step 9 **for that innovation only**. Cap the fallback at **one round per innovation** to avoid ballooning scope.
 
-11. **Verification gate — drop the ungrounded.** Every innovation that ships in the design document must point at a concrete related paper whose limitation justifies the novelty claim. If after step 10 an innovation still has zero grounding papers, **drop it from the document**. Never ship an ungrounded innovation. Also drop any claim whose details cannot be traced to (a) a file in the system directory, (b) a line in `paper/intro.tex`, or (c) a cited published paper.
+11. **Verification gate — drop the ungrounded.** Every innovation that ships in the design document must point at a concrete related paper whose limitation justifies the novelty claim. If after step 10 an innovation still has zero grounding papers, **drop it from the document**. Never ship an ungrounded innovation. Also drop any claim whose details cannot be traced to (a) a file in the system directory, (b) a line in `{paths.paper_dir}/intro.tex`, or (c) a cited published paper.
 
-12. **Compose the design document.** Use Bash: `mkdir -p design/design-details`. Then use Write to create `design/design-details/<SystemName>.md` with this structure:
+12. **Compose the design document.** Use Bash: `mkdir -p {paths.design_dir}`. Then use Write to create `{paths.design_dir}/<SystemName>.md` with this structure:
 
     ```markdown
     # <SystemName> Design Review
@@ -151,7 +161,7 @@ If the user's prompt in `$ARGUMENTS` conflicts with any step below, follow the u
 
     **No vagueness.** Every sentence must contain content a professor could use when writing the paper. If a detail is unknown, state so explicitly rather than filling space.
 
-13. **Update `design/design-details/root.md`.** Use Read to load the current contents.
+13. **Update `{paths.design_dir}/root.md`.** Use Read to load the current contents.
     - **If the file contains only the Obsidian placeholder** (`This is your new *vault*...`) or is empty, use Write to overwrite it with:
 
       ```markdown

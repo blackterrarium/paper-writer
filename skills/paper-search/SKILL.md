@@ -7,14 +7,24 @@ description: Search for relevant academic papers across top systems/networking/s
 
 ## Overview
 
-Search for relevant academic papers across top systems/networking/security conferences using the Semantic Scholar API, then insert the results directly into the Obsidian paper vault at `vault/paper-writer/`.
+Search for relevant academic papers across top systems/networking/security conferences using the Semantic Scholar API, then insert the results directly into the Obsidian paper vault at `{paths.vault}/`.
 
-The vault layout is documented in `vault/paper-writer/Vault Layout.md`:
+The vault layout is documented in `{paths.vault}/Vault Layout.md`:
 - Each paper is a `.md` file at the vault root.
 - Topics form a multi-rooted tree: intermediate topics list children under `## Subtopics`, leaf topics list papers under `## Papers`.
 - Papers attach only to **leaf** topics (possibly multiple).
 
 This skill never reads or writes the legacy `search-results/` folder. All vault mutations go through `${CLAUDE_PLUGIN_ROOT}/scripts/pw.py`.
+
+## Configuration
+
+Before step 1, resolve the project configuration:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" config dump
+```
+
+It prints the project's `paper-writer.toml` settings as JSON, or the defaults when the project has none. Throughout this skill, `{paths.*}`, `{paper.*}` and `{venues.*}` stand for values from that output: substitute them before running any command or writing any prompt. Lists such as `{venues.preferred_tier}` are written comma-separated. Run commands from `project_root`. `pw.py vault` commands already use `{paths.vault}` as the vault root.
 
 ## Steps
 
@@ -43,12 +53,12 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
    - To create a new leaf topic file:
      ```bash
      python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" vault create_topic \
-       "vault/paper-writer/{New Topic Title}.md" "{one-sentence description}" --leaf
+       "{paths.vault}/{New Topic Title}.md" "{one-sentence description}" --leaf
      ```
    - To attach a new leaf under an existing parent:
      ```bash
      python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" vault add_subtopic \
-       "vault/paper-writer/{Parent Topic}.md" "{New Topic Title}"
+       "{paths.vault}/{Parent Topic}.md" "{New Topic Title}"
      ```
    - To convert an existing leaf into an intermediate: read the file, move its `## Papers` list to a new child leaf (via `create_topic --leaf` + `attach_paper`), then edit the original file to replace `## Papers` with `## Subtopics` using Read/Edit.
 
@@ -68,79 +78,10 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
    S2_API_KEY = os.environ.get("SEMANTIC_SCHOLAR_API_KEY", "")
    S2_AUTH = ["-H", f"x-api-key: {S2_API_KEY}"] if S2_API_KEY else []
 
-   SHORT_NAMES = {
-       "mobile computing and networking": "MobiCom", "mobicom": "MobiCom",
-       "sigcomm": "SIGCOMM",
-       "computer and communications security": "CCS",
-       "mobile systems": "MobiSys", "mobisys": "MobiSys",
-       "embedded networked sensor": "SenSys", "sensys": "SenSys",
-       "internet measurement": "IMC",
-       "emerging networking experiments": "CoNEXT", "conext": "CoNEXT",
-       "architectural support for programming": "ASPLOS", "asplos": "ASPLOS",
-       "operating systems principles": "SOSP", "sosp": "SOSP",
-       "knowledge discovery": "KDD", "kdd": "KDD",
-       "human factors": "CHI", "chi conference": "CHI",
-       "ubiquitous computing": "UbiComp", "ubicomp": "UbiComp",
-       "programming language design": "PLDI", "pldi": "PLDI",
-       "principles of programming languages": "POPL", "popl": "POPL",
-       "operating systems design and implementation": "OSDI", "osdi": "OSDI",
-       "networked systems design": "NSDI", "nsdi": "NSDI",
-       "microarchitecture": "MICRO", "micro": "MICRO",
-       "computer architecture": "ISCA", "isca": "ISCA",
-       "infocom": "INFOCOM",
-       "global communications": "GLOBECOM", "globecom": "GLOBECOM",
-       "international conference on communications": "ICC",
-       "distributed computing systems": "ICDCS", "icdcs": "ICDCS",
-       "network protocols": "ICNP", "icnp": "ICNP",
-       "sensing, communication": "SECON", "secon": "SECON",
-       "mobile ad-hoc": "MASS", "mass": "MASS",
-       "high-performance computer architecture": "HPCA", "hpca": "HPCA",
-       "security and privacy": "S&P",
-       "cloud computing": "SoCC", "socc": "SoCC",
-       "networked systems design and implementation": "NSDI",
-       "symposium on networked systems design and implementation": "NSDI",
-       "operating systems design": "OSDI",
-       "annual technical conference": "ATC", "usenix annual": "ATC",
-       "security symposium": "USENIX Security",
-       "file and storage": "FAST", "fast": "FAST",
-   }
+   import sys
+   sys.path.insert(0, "${CLAUDE_PLUGIN_ROOT}/scripts")
+   from pwlib.venues import short_name, is_search_target  # the plugin's single venue table
 
-   CONFERENCES = [
-       "mobile computing and networking", "mobicom",
-       "sigcomm",
-       "computer and communications security",
-       "mobile systems", "mobisys",
-       "embedded networked sensor", "sensys",
-       "internet measurement",
-       "emerging networking experiments", "conext",
-       "architectural support for programming", "asplos",
-       "operating systems principles", "sosp",
-       "knowledge discovery", "kdd",
-       "human factors", "chi conference",
-       "ubiquitous computing", "ubicomp",
-       "programming language design", "pldi",
-       "principles of programming languages", "popl",
-       "operating systems design and implementation", "osdi",
-       "networked systems design", "nsdi",
-       "microarchitecture", "micro",
-       "computer architecture", "isca",
-       "infocom",
-       "global communications", "globecom",
-       "international conference on communications",
-       "distributed computing systems", "icdcs",
-       "network protocols", "icnp",
-       "sensing, communication", "secon",
-       "mobile ad-hoc", "mass",
-       "high-performance computer architecture", "hpca",
-       "security and privacy",
-       "cloud computing", "socc",
-       "networked systems design and implementation",
-       "symposium on networked systems design and implementation",
-       "operating systems design",
-       "annual technical conference", "usenix annual",
-       "security symposium",
-       "file and storage",
-   ]
 
    last_request_time = 0.0
 
@@ -201,14 +142,7 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
        year = str(item.get("year") or "")
        pub_venue = item.get("publicationVenue") or {}
        venue_full = pub_venue.get("name") or item.get("venue") or "Unknown"
-       venue_lower = venue_full.lower()
-       short_venue = ""
-       for frag, abbrev in SHORT_NAMES.items():
-           if frag in venue_lower:
-               short_venue = abbrev
-               break
-       if short_venue and year:
-           short_venue = f"{short_venue} {year}"
+       short_venue = short_name(venue_full, year)
        abstract = item.get("abstract") or ""
        return {
            "title": title, "doi": doi, "authors": authors,
@@ -219,9 +153,7 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
 
    def is_target_conference(item):
        pub_venue = item.get("publicationVenue") or {}
-       venue_name = pub_venue.get("name") or item.get("venue") or ""
-       venue_lower = venue_name.lower()
-       return any(frag in venue_lower for frag in CONFERENCES)
+       return is_search_target(pub_venue.get("name") or item.get("venue") or "")
 
    for i, entry in enumerate(topics):
        topic = entry["topic"]
@@ -289,7 +221,7 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
 
 5. **Fan out Sonnet agents for relevance assessment and vault insertion — one per search topic, all in a single message.** Use `model: "sonnet"` for each agent. Pass each agent its specific topic, the JSON file path, and the target leaf file path decided in step 3. The agent's prompt:
 
-   > You are a research paper relevance assessor and vault inserter. Your task is to process papers found for the search topic **"{topic}"** and insert the relevant ones into the paper vault, attached to the leaf topic **{target_leaf_title}** (`vault/paper-writer/{target_leaf_title}.md`).
+   > You are a research paper relevance assessor and vault inserter. Your task is to process papers found for the search topic **"{topic}"** and insert the relevant ones into the paper vault, attached to the leaf topic **{target_leaf_title}** (`{paths.vault}/{target_leaf_title}.md`).
    >
    > The target leaf's description: {target_leaf_description}
    >
@@ -319,7 +251,7 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
    >
    > ```bash
    > python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" vault attach_paper \
-   >   "vault/paper-writer/{target_leaf_title}.md" "{paper_title}"
+   >   "{paths.vault}/{target_leaf_title}.md" "{paper_title}"
    > ```
    >
    > where `{paper_title}` is the paper's exact title as it appears in its vault file name (without the `.md` suffix). For newly written papers, this is the sanitized title printed by `write_paper`. For existing papers, this is the filename stem.

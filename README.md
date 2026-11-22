@@ -5,8 +5,8 @@ research papers. It keeps related work in an Obsidian-style vault, finds papers 
 Semantic Scholar and Crossref, selects citations, drafts LaTeX sections, and reviews prose
 against an author style guide.
 
-> **Status: v0.1 in progress.** Skills still assume the default project layout below.
-> Per-project configuration, style profiles, and `/paper-writer:init` are coming next.
+> **Status: v0.1 in progress.** `/paper-writer:init` (project setup) is coming next; until
+> then, create the layout below by hand.
 
 ## Install
 
@@ -28,20 +28,89 @@ To try a local checkout: `claude --plugin-dir /path/to/paper-writer`.
 | `/paper-writer:crossref <venue> <year>` | List ACM/IEEE proceedings papers via Crossref |
 | `/paper-writer:find-citations <contexts>` | Pick citations from the vault for a section |
 | `/paper-writer:paper-name` | Set up `\name` LaTeX commands from the paper title |
-| `/paper-writer:write-intro <outline>` | Draft `paper/intro.tex` and update `paper/ref.bib` |
-| `/paper-writer:write-background <outline>` | Draft `paper/background.tex` |
+| `/paper-writer:write-intro <outline>` | Draft the introduction (`intro.tex`) and update the bibliography |
+| `/paper-writer:write-background <outline>` | Draft the background and motivation section |
 | `/paper-writer:design-review <system dir>` | Analyse an implementation and write a design-contributions document |
-| `/paper-writer:style-review <file.tex>` | Report style-guide violations and apply selected fixes |
+| `/paper-writer:style-review <file.tex>` | Check a section against your style profile and apply selected fixes |
 
-## Default project layout
+## Project configuration
+
+Put a `paper-writer.toml` at the project root. The skills find it by searching upward from
+the current directory. Every key is optional; these are the defaults:
+
+```toml
+[paths]
+paper_dir     = "paper"
+main_tex      = "paper/main.tex"
+bib           = "paper/ref.bib"
+vault         = "vault/paper-writer"
+outline_dir   = "outline"
+design_dir    = "design/design-details"
+name_commands = "guidelines/name-commands.md"
+
+[paper]
+field         = "computer systems and networking"   # used in drafting prompts
+target_venues = ["SIGCOMM", "ASPLOS", "OSDI"]
+
+[venues]
+preferred_tier = ["SIGCOMM", "OSDI", "NSDI", "SOSP", "ASPLOS", "MobiCom", "CoNEXT", "EuroSys"]
+
+[style]
+profile   = ""   # a profile name under ~/.config/paper-writer/profiles/
+path      = ""   # or a profile directory inside the project
+overrides = ""   # optional style-overrides.md (a sibling .toml is merged into the rules)
+```
+
+`python3 scripts/pw.py config dump` (from the plugin directory, run inside your project)
+prints the resolved settings.
+
+## Style profiles
+
+Drafting (`write-intro`, `write-background`) and review (`style-review`) follow a **style
+profile**: a directory with
+
+| File | Purpose |
+|---|---|
+| `style.md` | The prose style guide, pasted into drafting and review prompts |
+| `rules.toml` | Banned phrases, avoided transitions, swap suggestions, and which constructions (em-dashes, author-name citations, prose semicolons) to forbid, warn about, or allow |
+| `profile.toml` | Metadata: `name` (required), `author`, `version`, `generator`, `created` |
+| `rubric.md` | Optional: the judgment rubric `style-review` scores against |
+
+The active profile is chosen in this order: `[style].path`, then `[style].profile` under
+`~/.config/paper-writer/profiles/` (or `$XDG_CONFIG_HOME/paper-writer/profiles/`), then a
+legacy `guidelines/style.md` in the project, then the neutral baseline profile bundled in
+[`profiles/baseline`](profiles/baseline). A project's `style-overrides.md` is added to
+drafting prompts after the guide, and `style-overrides.toml` is merged over the rules
+(lists are unioned, other values replace).
+
+`rules.toml` format:
+
+```toml
+[deterministic]            # each: "forbid" | "warn" | "allow"
+em_dash = "forbid"
+author_name_citations = "forbid"
+prose_semicolons = "warn"
+
+[phrases]
+banned = ["delve", "It is important to note that"]
+avoided_transitions = ["Moreover,"]
+
+[swaps]                    # lower-case phrase -> replacement; "" means delete by hand
+"utilize" = "use"
+```
+
+Helper commands:
 
 ```
-paper/            main.tex, intro.tex, background.tex, ref.bib
-vault/paper-writer/   Root.md, topic notes, one note per paper
-guidelines/style.md   author style guide (read by writing and review skills)
-outline/          section outlines
-design/design-details/  design-review output
+pw.py style resolve                 # which profile is active, and its files
+pw.py style rules                   # merged rules as JSON
+pw.py style scan paper/intro.tex    # the deterministic checks style-review runs
+pw.py style validate <profile-dir>  # check a profile before using it
+pw.py style import-legacy guidelines/style.md --out rules.toml
 ```
+
+`import-legacy` converts a style guide written in the older heading-based format (banned
+phrases under `### Filler phrases to never use` and similar headings) into `rules.toml`.
 
 ## Network access
 

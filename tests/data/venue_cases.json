@@ -1,0 +1,566 @@
+[
+ {
+  "venue": "",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "2024 IEEE Globecom Workshops (GC Wkshps)",
+  "search_short": "GLOBECOM",
+  "refs_short": "GLOBECOM",
+  "is_target": true
+ },
+ {
+  "venue": "ACM SIGMOD International Conference on Management of Data",
+  "search_short": "",
+  "refs_short": "SIGMOD",
+  "is_target": false
+ },
+ {
+  "venue": "ACM Symposium on Cloud Computing",
+  "search_short": "SoCC",
+  "refs_short": "SoCC",
+  "is_target": true
+ },
+ {
+  "venue": "ACM Workshop on Hot Topics in Networks",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "ACM/SIGCOMM Internet Measurement Conference",
+  "search_short": "SIGCOMM",
+  "refs_short": "SIGCOMM",
+  "is_target": true
+ },
+ {
+  "venue": "Communications of the ACM",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "Euromicro Conference on Real-Time Systems",
+  "search_short": "MICRO",
+  "refs_short": "MICRO",
+  "is_target": true
+ },
+ {
+  "venue": "Fast Abstracts Session",
+  "search_short": "FAST",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "ICC 2024 - IEEE International Conference on Communications",
+  "search_short": "ICC",
+  "refs_short": "ICC",
+  "is_target": true
+ },
+ {
+  "venue": "IEEE Access",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "IEEE Conference on Computer Communications",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "IEEE European Symposium on Security and Privacy",
+  "search_short": "S&P",
+  "refs_short": "S&P",
+  "is_target": true
+ },
+ {
+  "venue": "IEEE International Conference on Network Protocols",
+  "search_short": "ICNP",
+  "refs_short": "ICNP",
+  "is_target": true
+ },
+ {
+  "venue": "IEEE Transactions on Networking",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "International Conference on Architectural Support for Programming Languages and Operating Systems",
+  "search_short": "ASPLOS",
+  "refs_short": "ASPLOS",
+  "is_target": true
+ },
+ {
+  "venue": "International Conference on Modeling, Analysis and Simulation of Wireless and Mobile Systems",
+  "search_short": "MobiSys",
+  "refs_short": "MobiSys",
+  "is_target": true
+ },
+ {
+  "venue": "International Symposium on Microarchitecture",
+  "search_short": "MICRO",
+  "refs_short": "MICRO",
+  "is_target": true
+ },
+ {
+  "venue": "Network and Distributed System Security Symposium",
+  "search_short": "USENIX Security",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the 29th Symposium on Operating Systems Principles",
+  "search_short": "SOSP",
+  "refs_short": "SOSP",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the ACM SIGCOMM 2024 Conference",
+  "search_short": "SIGCOMM",
+  "refs_short": "SIGCOMM",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Annual Technical Conference Conference",
+  "search_short": "ATC",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Architectural Support For Programming Conference",
+  "search_short": "ASPLOS",
+  "refs_short": "ASPLOS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Asplos Conference",
+  "search_short": "ASPLOS",
+  "refs_short": "ASPLOS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Chi Conference Conference",
+  "search_short": "CHI",
+  "refs_short": "CHI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Cloud Computing Conference",
+  "search_short": "SoCC",
+  "refs_short": "SoCC",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Computer And Communications Security Conference",
+  "search_short": "CCS",
+  "refs_short": "CCS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Computer Architecture Conference",
+  "search_short": "ISCA",
+  "refs_short": "ISCA",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Conext Conference",
+  "search_short": "CoNEXT",
+  "refs_short": "CoNEXT",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Distributed Computing Systems Conference",
+  "search_short": "ICDCS",
+  "refs_short": "ICDCS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Embedded Networked Sensor Conference",
+  "search_short": "SenSys",
+  "refs_short": "SenSys",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Emerging Networking Experiments Conference",
+  "search_short": "CoNEXT",
+  "refs_short": "CoNEXT",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Fast Conference",
+  "search_short": "FAST",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "Proceedings of the File And Storage Conference",
+  "search_short": "FAST",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Global Communications Conference",
+  "search_short": "GLOBECOM",
+  "refs_short": "GLOBECOM",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Globecom Conference",
+  "search_short": "GLOBECOM",
+  "refs_short": "GLOBECOM",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the High Performance Computing Conference",
+  "search_short": "",
+  "refs_short": "SC",
+  "is_target": false
+ },
+ {
+  "venue": "Proceedings of the High-Performance Computer Architecture Conference",
+  "search_short": "ISCA",
+  "refs_short": "ISCA",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Hpca Conference",
+  "search_short": "HPCA",
+  "refs_short": "HPCA",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Human Factors Conference",
+  "search_short": "CHI",
+  "refs_short": "CHI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Icdcs Conference",
+  "search_short": "ICDCS",
+  "refs_short": "ICDCS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Icnp Conference",
+  "search_short": "ICNP",
+  "refs_short": "ICNP",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Infocom Conference",
+  "search_short": "INFOCOM",
+  "refs_short": "INFOCOM",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the International Conference On Communications Conference",
+  "search_short": "ICC",
+  "refs_short": "ICC",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Internet Measurement Conference",
+  "search_short": "IMC",
+  "refs_short": "IMC",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Isca Conference",
+  "search_short": "ISCA",
+  "refs_short": "ISCA",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Kdd Conference",
+  "search_short": "KDD",
+  "refs_short": "KDD",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Knowledge Discovery Conference",
+  "search_short": "KDD",
+  "refs_short": "KDD",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Management Of Data Conference",
+  "search_short": "",
+  "refs_short": "SIGMOD",
+  "is_target": false
+ },
+ {
+  "venue": "Proceedings of the Mass Conference",
+  "search_short": "MASS",
+  "refs_short": "MASS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Micro Conference",
+  "search_short": "MICRO",
+  "refs_short": "MICRO",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Microarchitecture Conference",
+  "search_short": "MICRO",
+  "refs_short": "MICRO",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Mobicom Conference",
+  "search_short": "MobiCom",
+  "refs_short": "MobiCom",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Mobile Ad-Hoc Conference",
+  "search_short": "MASS",
+  "refs_short": "MASS",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Mobile Computing And Networking Conference",
+  "search_short": "MobiCom",
+  "refs_short": "MobiCom",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Mobile Systems Conference",
+  "search_short": "MobiSys",
+  "refs_short": "MobiSys",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Mobisys Conference",
+  "search_short": "MobiSys",
+  "refs_short": "MobiSys",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Network Protocols Conference",
+  "search_short": "ICNP",
+  "refs_short": "ICNP",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Networked Systems Design And Implementation Conference",
+  "search_short": "NSDI",
+  "refs_short": "NSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Networked Systems Design Conference",
+  "search_short": "NSDI",
+  "refs_short": "NSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Nsdi Conference",
+  "search_short": "NSDI",
+  "refs_short": "NSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Operating Systems Design And Implementation Conference",
+  "search_short": "OSDI",
+  "refs_short": "OSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Operating Systems Design Conference",
+  "search_short": "OSDI",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Operating Systems Principles Conference",
+  "search_short": "SOSP",
+  "refs_short": "SOSP",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Osdi Conference",
+  "search_short": "OSDI",
+  "refs_short": "OSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Pldi Conference",
+  "search_short": "PLDI",
+  "refs_short": "PLDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Popl Conference",
+  "search_short": "POPL",
+  "refs_short": "POPL",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Principles Of Programming Languages Conference",
+  "search_short": "POPL",
+  "refs_short": "POPL",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Programming Language Design Conference",
+  "search_short": "PLDI",
+  "refs_short": "PLDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Secon Conference",
+  "search_short": "SECON",
+  "refs_short": "SECON",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Security And Privacy Conference",
+  "search_short": "S&P",
+  "refs_short": "S&P",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Security Symposium Conference",
+  "search_short": "USENIX Security",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Sensing, Communication Conference",
+  "search_short": "SECON",
+  "refs_short": "SECON",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Sensys Conference",
+  "search_short": "SenSys",
+  "refs_short": "SenSys",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Sigcomm Conference",
+  "search_short": "SIGCOMM",
+  "refs_short": "SIGCOMM",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Sigmod Conference",
+  "search_short": "",
+  "refs_short": "SIGMOD",
+  "is_target": false
+ },
+ {
+  "venue": "Proceedings of the Socc Conference",
+  "search_short": "SoCC",
+  "refs_short": "SoCC",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Sosp Conference",
+  "search_short": "SOSP",
+  "refs_short": "SOSP",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Symposium On Networked Systems Design And Implementation Conference",
+  "search_short": "NSDI",
+  "refs_short": "NSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Ubicomp Conference",
+  "search_short": "UbiComp",
+  "refs_short": "UbiComp",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Ubiquitous Computing Conference",
+  "search_short": "UbiComp",
+  "refs_short": "UbiComp",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the Usenix Annual Conference",
+  "search_short": "ATC",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "Proceedings of the VLDB Endowment",
+  "search_short": "",
+  "refs_short": "VLDB",
+  "is_target": false
+ },
+ {
+  "venue": "Proceedings of the Very Large Data Bases Conference",
+  "search_short": "",
+  "refs_short": "VLDB",
+  "is_target": false
+ },
+ {
+  "venue": "Proceedings of the Vldb Conference",
+  "search_short": "",
+  "refs_short": "VLDB",
+  "is_target": false
+ },
+ {
+  "venue": "SC23: International Conference for High Performance Computing, Networking, Storage and Analysis",
+  "search_short": "",
+  "refs_short": "SC",
+  "is_target": false
+ },
+ {
+  "venue": "SIGCOMM Posters and Demos",
+  "search_short": "SIGCOMM",
+  "refs_short": "SIGCOMM",
+  "is_target": true
+ },
+ {
+  "venue": "Symposium on Networked Systems Design and Implementation",
+  "search_short": "NSDI",
+  "refs_short": "NSDI",
+  "is_target": true
+ },
+ {
+  "venue": "USENIX Annual Technical Conference",
+  "search_short": "ATC",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "USENIX Conference on File and Storage Technologies",
+  "search_short": "FAST",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "USENIX Security Symposium",
+  "search_short": "USENIX Security",
+  "refs_short": "",
+  "is_target": true
+ },
+ {
+  "venue": "USENIX Symposium on Networked Systems Design and Implementation",
+  "search_short": "NSDI",
+  "refs_short": "NSDI",
+  "is_target": true
+ },
+ {
+  "venue": "Unknown",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ },
+ {
+  "venue": "arXiv",
+  "search_short": "",
+  "refs_short": "",
+  "is_target": false
+ }
+]

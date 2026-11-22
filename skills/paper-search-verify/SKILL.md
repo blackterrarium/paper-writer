@@ -5,11 +5,21 @@ description: Audit every paper in the Obsidian paper vault: fill missing abstrac
 
 # /paper-writer:paper-search-verify
 
-Audit all paper files in the Obsidian paper vault at `vault/paper-writer/`. Fills missing abstracts, verifies and corrects venue names (full and short), and flags papers whose content disagrees with their current Relevance note.
+Audit all paper files in the Obsidian paper vault at `{paths.vault}/`. Fills missing abstracts, verifies and corrects venue names (full and short), and flags papers whose content disagrees with their current Relevance note.
 
-The vault layout is documented in `vault/paper-writer/Vault Layout.md`. Paper files live at the vault root; each contains a `- **DOI**:` line, an `## Abstract` section, and a `## Relevance` section. Topic files (with `## Subtopics` or `## Papers`) are **not** audited — only paper files.
+The vault layout is documented in `{paths.vault}/Vault Layout.md`. Paper files live at the vault root; each contains a `- **DOI**:` line, an `## Abstract` section, and a `## Relevance` section. Topic files (with `## Subtopics` or `## Papers`) are **not** audited — only paper files.
 
 This skill never reads or writes the legacy `search-results/` folder.
+
+## Configuration
+
+Before step 1, resolve the project configuration:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" config dump
+```
+
+It prints the project's `paper-writer.toml` settings as JSON, or the defaults when the project has none. Throughout this skill, `{paths.*}`, `{paper.*}` and `{venues.*}` stand for values from that output: substitute them before running any command or writing any prompt. Lists such as `{venues.preferred_tier}` are written comma-separated. Run commands from `project_root`. `pw.py vault` commands already use `{paths.vault}` as the vault root.
 
 ## Steps
 
@@ -19,7 +29,7 @@ This skill never reads or writes the legacy `search-results/` folder.
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" vault list_paper_files
    ```
 
-   This prints the path of every `.md` file in `vault/paper-writer/` that has a DOI line (i.e., is a paper file rather than a topic file or vault metadata file).
+   This prints the path of every `.md` file in `{paths.vault}/` that has a DOI line (i.e., is a paper file rather than a topic file or vault metadata file).
 
 2. **Extract DOIs from each paper file.** For each file from step 1, use Read to load the top ~40 lines and parse:
    - DOI (from the `- **DOI**: https://doi.org/...` line, or `- **DOI**: Not available`)
@@ -76,7 +86,7 @@ This skill never reads or writes the legacy `search-results/` folder.
 4. **Collect results and build a canonical metadata map.** After all batches complete, parse the JSON outputs and assemble `{doi → {abstract, venue_full, venue_short, year}}`:
    - `abstract`: from S2. Use `""` if empty.
    - `venue_full`: from `publicationVenue.name` or `venue`.
-   - `venue_short`: apply the SHORT_NAMES mapping (same as in `paper-search`) against `venue_full`, then append the year (e.g., `SIGCOMM 2024`). Empty if no match.
+   - `venue_short`: run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" venue normalize "<venue_full>" --year <year>` (the same venue table `paper-search` uses), e.g. `SIGCOMM 2024`. Empty if no match.
 
    **Venue verification rules** — cross-check and correct short names:
    - Workshops should carry the workshop's own abbreviation (e.g., "SIGCOMM Workshop on Hot Topics in Networks" → "HotNets", not "SIGCOMM").
