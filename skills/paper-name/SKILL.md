@@ -5,17 +5,27 @@ description: Extract the system name from the paper title in main.tex and set up
 
 # /paper-writer:paper-name
 
-Extract the system name from the paper title and set up reusable LaTeX name commands in `main.tex`. Also writes a prompt snippet file (`guidelines/name-commands.md`) that other skills inject into their Opus writing agent prompts.
+Extract the system name from the paper title and set up reusable LaTeX name commands in `{paths.main_tex}`. Also writes a prompt snippet file (`{paths.name_commands}`) that other skills inject into their Opus writing agent prompts.
 
 This skill is called by other paper-writing skills (e.g., `/paper-writer:write-intro`, `/paper-writer:write-background`) before their writing step. It can also be invoked standalone.
 
+## Configuration
+
+Before step 1, resolve the project configuration:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" config dump
+```
+
+It prints the project's `paper-writer.toml` settings as JSON, or the defaults when the project has none. Throughout this skill, `{paths.*}`, `{paper.*}` and `{venues.*}` stand for values from that output: substitute them before running any command or writing any prompt. Lists such as `{venues.preferred_tier}` are written comma-separated. Run commands from `project_root`. `pw.py vault` commands already use `{paths.vault}` as the vault root.
+
 ## Steps
 
-1. **Extract the system name.** Use Read to load `paper/main.tex`. Find the `\title{...}` line and extract the system name — the text before the colon in the title (e.g., from `\title{Acme: Fast Congestion Control for Datacenter Networks}`, extract `Acme`). If the title has no colon, use the first capitalized multi-word phrase. If ambiguous, ask the user to confirm.
+1. **Extract the system name.** Use Read to load `{paths.main_tex}`. Find the `\title{...}` line and extract the system name — the text before the colon in the title (e.g., from `\title{Acme: Fast Congestion Control for Datacenter Networks}`, extract `Acme`). If the title has no colon, use the first capitalized multi-word phrase. If ambiguous, ask the user to confirm.
 
-2. **Ensure `xspace` package is loaded.** Use Grep to check whether `\usepackage{xspace}` already exists in `paper/main.tex`. If not, use Edit to insert `\usepackage{xspace}` before the `%% end of the preamble` comment line.
+2. **Ensure `xspace` package is loaded.** Use Grep to check whether `\usepackage{xspace}` already exists in `{paths.main_tex}`. If not, use Edit to insert `\usepackage{xspace}` before the `%% end of the preamble` comment line.
 
-3. **Add or update name commands.** Use Grep to check whether `\newcommand{\name}` already exists in `paper/main.tex`.
+3. **Add or update name commands.** Use Grep to check whether `\newcommand{\name}` already exists in `{paths.main_tex}`.
 
    - **If the commands already exist:** Use Edit to update the system name within them to match the extracted name.
    - **If they do not exist:** Use Edit to insert the following block before the `%% end of the preamble` comment line (after any `\usepackage` lines):
@@ -29,7 +39,7 @@ This skill is called by other paper-writing skills (e.g., `/paper-writer:write-i
 
      Replace `SYSNAME` with the actual extracted system name.
 
-4. **Write prompt snippet.** Use Bash to run `mkdir -p guidelines`. Use Write to create (or overwrite) `guidelines/name-commands.md` with the following content, substituting the extracted system name:
+4. **Write prompt snippet.** Use Bash to run `mkdir -p "$(dirname {paths.name_commands})"`. Use Write to create (or overwrite) `{paths.name_commands}` with the following content, substituting the extracted system name:
 
    ```markdown
    **System name commands:** The following LaTeX commands are defined in `main.tex` for the system name "{SYSNAME}":

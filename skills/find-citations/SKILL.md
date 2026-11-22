@@ -5,24 +5,24 @@ description: Select relevant citations from the Obsidian paper vault for any sec
 
 Select relevant citations from the Obsidian paper vault for any section of an academic paper. Takes citation contexts describing what to cite and why, reads vault paper files under the specified topic subtrees, and produces a citation plan with BibTeX keys. Reusable across introduction, background, related work, or any section needing citations.
 
-Takes citation contexts as input (text or file path in `$ARGUMENTS`). Writes a structured citation plan to a specified output file (default `paper/citation-plan.md`).
+Takes citation contexts as input (text or file path in `$ARGUMENTS`). Writes a structured citation plan to a specified output file (default `{paths.paper_dir}/citation-plan.md`).
 
-The vault layout is documented in `vault/paper-writer/Vault Layout.md`: papers are `.md` files at `vault/paper-writer/`, attached to leaf topics via `[[wikilinks]]`. This skill never reads or writes the legacy `search-results/` folder.
+The vault layout is documented in `{paths.vault}/Vault Layout.md`: papers are `.md` files at `{paths.vault}/`, attached to leaf topics via `[[wikilinks]]`. This skill never reads or writes the legacy `search-results/` folder.
 
 ## Input format
 
 The input must contain one or more citation contexts and optionally a bib file path and output path. Each context has a label, description, list of topic files to pull candidate papers from, selection count, and criteria type. Example:
 
 ```
-BIB FILE: paper/ref.bib
-OUTPUT: paper/citation-plan.md
+BIB FILE: {paths.bib}
+OUTPUT: {paths.paper_dir}/citation-plan.md
 
 CONTEXT: Challenge 1: Slow convergence of rate control
 CRITERIA: reason
 SELECT: 2-4
 TOPICS:
-  - vault/paper-writer/Datacenter Congestion Control.md
-  - vault/paper-writer/Transport Performance Measurement.md
+  - {paths.vault}/Datacenter Congestion Control.md
+  - {paths.vault}/Transport Performance Measurement.md
 DESCRIPTION:
   Window-based senders need several round trips to converge after a
   load change, and queues build up in the meantime. Prior measurements show...
@@ -32,7 +32,7 @@ CONTEXT: Insufficiency of existing methods
 CRITERIA: gap
 SELECT: 2-4
 TOPICS:
-  - vault/paper-writer/Datacenter Transport.md
+  - {paths.vault}/Datacenter Transport.md
 DESCRIPTION:
   Solution insight: ...
   Challenges being addressed: ...
@@ -41,9 +41,19 @@ END CONTEXT
 
 `TOPICS:` accepts either leaf topic files or intermediate topic files. For intermediate topics, the skill recursively collects every paper attached to any leaf under that subtree.
 
+## Configuration
+
+Before step 1, resolve the project configuration:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" config dump
+```
+
+It prints the project's `paper-writer.toml` settings as JSON, or the defaults when the project has none. Throughout this skill, `{paths.*}`, `{paper.*}` and `{venues.*}` stand for values from that output: substitute them before running any command or writing any prompt. Lists such as `{venues.preferred_tier}` are written comma-separated. Run commands from `project_root`. `pw.py vault` commands already use `{paths.vault}` as the vault root.
+
 ## Steps
 
-1. **Parse input.** Extract the input from `$ARGUMENTS`. If it looks like a file path (contains `/` or ends in `.md` or `.txt`), read it with Read. Otherwise treat the argument text as the input itself. Parse all `CONTEXT ... END CONTEXT` blocks. Extract `BIB FILE` (default: `paper/ref.bib`) and `OUTPUT` (default: `paper/citation-plan.md`).
+1. **Parse input.** Extract the input from `$ARGUMENTS`. If it looks like a file path (contains `/` or ends in `.md` or `.txt`), read it with Read. Otherwise treat the argument text as the input itself. Parse all `CONTEXT ... END CONTEXT` blocks. Extract `BIB FILE` (default: `{paths.bib}`) and `OUTPUT` (default: `{paths.paper_dir}/citation-plan.md`).
 
 2. **Load existing BibTeX state.** Use Bash: `test -f {bib_file} && echo EXISTS || echo NEW`. If it exists, use Read to load its contents. Parse existing BibTeX keys and DOIs so they can be reused rather than duplicated.
 
@@ -71,7 +81,7 @@ END CONTEXT
    > - The paper's `## Abstract` section — this is the ground truth for what the paper is actually about.
    > - The paper's `## Relevance` field describes relevance to the leaf topic(s) it is attached to, not to the citation context. Use it as a hint but not as the deciding signal.
    > - Papers explicitly named by title in the context description above — **always include these**.
-   > - Prefer papers from top-tier venues (SIGCOMM, OSDI, NSDI, SOSP, ASPLOS, MobiCom, CoNEXT, EuroSys) — check the `- **Venue**:` line.
+   > - Prefer papers from top-tier venues ({venues.preferred_tier}) — check the `- **Venue**:` line.
    >
    > For each selected paper, output a structured block:
    > ```

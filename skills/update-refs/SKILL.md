@@ -42,39 +42,9 @@ Verify and complete paper metadata in markdown reference files. For each paper e
    > > doi = "{doi_or_empty}"
    > > title = """{title}"""
    > >
-   > > SHORT_NAMES = {
-   > >     "mobile computing and networking": "MobiCom", "mobicom": "MobiCom",
-   > >     "sigcomm": "SIGCOMM",
-   > >     "computer and communications security": "CCS",
-   > >     "mobile systems": "MobiSys", "mobisys": "MobiSys",
-   > >     "embedded networked sensor": "SenSys", "sensys": "SenSys",
-   > >     "internet measurement": "IMC",
-   > >     "emerging networking experiments": "CoNEXT", "conext": "CoNEXT",
-   > >     "architectural support for programming": "ASPLOS", "asplos": "ASPLOS",
-   > >     "operating systems principles": "SOSP", "sosp": "SOSP",
-   > >     "knowledge discovery": "KDD", "kdd": "KDD",
-   > >     "human factors": "CHI", "chi conference": "CHI",
-   > >     "ubiquitous computing": "UbiComp", "ubicomp": "UbiComp",
-   > >     "programming language design": "PLDI", "pldi": "PLDI",
-   > >     "principles of programming languages": "POPL", "popl": "POPL",
-   > >     "operating systems design and implementation": "OSDI", "osdi": "OSDI",
-   > >     "networked systems design": "NSDI", "nsdi": "NSDI",
-   > >     "microarchitecture": "MICRO", "micro": "MICRO",
-   > >     "computer architecture": "ISCA", "isca": "ISCA",
-   > >     "infocom": "INFOCOM",
-   > >     "global communications": "GLOBECOM", "globecom": "GLOBECOM",
-   > >     "international conference on communications": "ICC",
-   > >     "distributed computing systems": "ICDCS", "icdcs": "ICDCS",
-   > >     "network protocols": "ICNP", "icnp": "ICNP",
-   > >     "sensing, communication": "SECON", "secon": "SECON",
-   > >     "mobile ad-hoc": "MASS", "mass": "MASS",
-   > >     "high-performance computer architecture": "HPCA", "hpca": "HPCA",
-   > >     "security and privacy": "S&P",
-   > >     "cloud computing": "SoCC", "socc": "SoCC",
-   > >     "high performance computing": "SC",
-   > >     "very large data bases": "VLDB", "vldb": "VLDB",
-   > >     "management of data": "SIGMOD", "sigmod": "SIGMOD",
-   > > }
+   > > import sys
+   > > sys.path.insert(0, "${CLAUDE_PLUGIN_ROOT}/scripts")
+   > > from pwlib.venues import short_name, is_search_target  # the plugin's single venue table
    > >
    > > if doi:
    > >     url = f"https://api.crossref.org/works/{doi}"
@@ -116,18 +86,10 @@ Verify and complete paper metadata in markdown reference files. For each paper e
    > >     venue_full = (item.get("container-title") or [""])[0]
    > >     short_ct = (item.get("short-container-title") or [""])[0]
    > >
-   > >     short_venue = ""
    > >     if short_ct:
-   > >         short_venue = short_ct
+   > >         short_venue = f"{short_ct} {year}" if year else short_ct
    > >     else:
-   > >         lower = venue_full.lower()
-   > >         for frag, abbrev in SHORT_NAMES.items():
-   > >             if frag in lower:
-   > >                 short_venue = abbrev
-   > >                 break
-   > >
-   > >     if short_venue and year:
-   > >         short_venue = f"{short_venue} {year}"
+   > >         short_venue = short_name(venue_full, year)
    > >
    > >     print(f"CROSSREF_RESULT: FOUND")
    > >     print(f"CR_TITLE: {cr_title}")

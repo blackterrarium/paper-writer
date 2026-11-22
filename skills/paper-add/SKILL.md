@@ -7,11 +7,21 @@ description: Find a specific paper by title using Semantic Scholar and add it to
 
 ## Overview
 
-Find a specific paper by title using Semantic Scholar and add it to the Obsidian paper vault at `vault/paper-writer/`, attaching it to the most relevant leaf topic(s).
+Find a specific paper by title using Semantic Scholar and add it to the Obsidian paper vault at `{paths.vault}/`, attaching it to the most relevant leaf topic(s).
 
-The vault layout is documented in `vault/paper-writer/Vault Layout.md`: papers live as individual `.md` files at the vault root and are attached to one or more leaf topic files via `[[wikilinks]]` under a `## Papers` section. Papers are deduplicated by DOI.
+The vault layout is documented in `{paths.vault}/Vault Layout.md`: papers live as individual `.md` files at the vault root and are attached to one or more leaf topic files via `[[wikilinks]]` under a `## Papers` section. Papers are deduplicated by DOI.
 
 This skill never reads or writes the legacy `search-results/` folder. All vault mutations go through `${CLAUDE_PLUGIN_ROOT}/scripts/pw.py`.
+
+## Configuration
+
+Before step 1, resolve the project configuration:
+
+```bash
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" config dump
+```
+
+It prints the project's `paper-writer.toml` settings as JSON, or the defaults when the project has none. Throughout this skill, `{paths.*}`, `{paper.*}` and `{venues.*}` stand for values from that output: substitute them before running any command or writing any prompt. Lists such as `{venues.preferred_tier}` are written comma-separated. Run commands from `project_root`. `pw.py vault` commands already use `{paths.vault}` as the vault root.
 
 ## Steps
 
@@ -31,42 +41,9 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
    paper_title = """{paper_title}"""
    query_encoded = urllib.parse.quote(paper_title)
 
-   SHORT_NAMES = {
-       "mobile computing and networking": "MobiCom", "mobicom": "MobiCom",
-       "sigcomm": "SIGCOMM",
-       "computer and communications security": "CCS",
-       "mobile systems": "MobiSys", "mobisys": "MobiSys",
-       "embedded networked sensor": "SenSys", "sensys": "SenSys",
-       "internet measurement": "IMC",
-       "emerging networking experiments": "CoNEXT", "conext": "CoNEXT",
-       "architectural support for programming": "ASPLOS", "asplos": "ASPLOS",
-       "operating systems principles": "SOSP", "sosp": "SOSP",
-       "knowledge discovery": "KDD", "kdd": "KDD",
-       "human factors": "CHI", "chi conference": "CHI",
-       "ubiquitous computing": "UbiComp", "ubicomp": "UbiComp",
-       "programming language design": "PLDI", "pldi": "PLDI",
-       "principles of programming languages": "POPL", "popl": "POPL",
-       "operating systems design and implementation": "OSDI", "osdi": "OSDI",
-       "networked systems design": "NSDI", "nsdi": "NSDI",
-       "microarchitecture": "MICRO", "micro": "MICRO",
-       "computer architecture": "ISCA", "isca": "ISCA",
-       "infocom": "INFOCOM",
-       "global communications": "GLOBECOM", "globecom": "GLOBECOM",
-       "international conference on communications": "ICC",
-       "distributed computing systems": "ICDCS", "icdcs": "ICDCS",
-       "network protocols": "ICNP", "icnp": "ICNP",
-       "sensing, communication": "SECON", "secon": "SECON",
-       "mobile ad-hoc": "MASS", "mass": "MASS",
-       "high-performance computer architecture": "HPCA", "hpca": "HPCA",
-       "security and privacy": "S&P",
-       "cloud computing": "SoCC", "socc": "SoCC",
-       "networked systems design and implementation": "NSDI",
-       "symposium on networked systems design and implementation": "NSDI",
-       "operating systems design": "OSDI",
-       "annual technical conference": "ATC", "usenix annual": "ATC",
-       "security symposium": "USENIX Security",
-       "file and storage": "FAST", "fast": "FAST",
-   }
+   import sys
+   sys.path.insert(0, "${CLAUDE_PLUGIN_ROOT}/scripts")
+   from pwlib.venues import short_name, is_search_target  # the plugin's single venue table
 
    def normalize(s):
        return set(re.sub(r'[^a-z0-9 ]', '', s.lower()).split())
@@ -149,14 +126,7 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
    doi = ext_ids.get("DOI", "") or ""
    pub_venue = item.get("publicationVenue") or {}
    venue_full = pub_venue.get("name") or item.get("venue") or "Unknown"
-   venue_lower = venue_full.lower()
-   short_venue = ""
-   for frag, abbrev in SHORT_NAMES.items():
-       if frag in venue_lower:
-           short_venue = abbrev
-           break
-   if short_venue and year:
-       short_venue = f"{short_venue} {year}"
+   short_venue = short_name(venue_full, year)
    abstract = item.get("abstract") or ""
 
    print(json.dumps({
@@ -212,7 +182,7 @@ This skill never reads or writes the legacy `search-results/` folder. All vault 
 
    ```bash
    python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" vault attach_paper \
-     "vault/paper-writer/{leaf-title}.md" "{paper-file-stem}"
+     "{paths.vault}/{leaf-title}.md" "{paper-file-stem}"
    ```
 
    where `{paper-file-stem}` is the paper file name without `.md` (this is the sanitized title — use `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/pw.py" vault sanitize "{title}"` if you need to compute it).
