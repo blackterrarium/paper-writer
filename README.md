@@ -5,8 +5,7 @@ research papers. It keeps related work in an Obsidian-style vault, finds papers 
 Semantic Scholar and Crossref, selects citations, drafts LaTeX sections, and reviews prose
 against an author style guide.
 
-> **Status: v0.1 in progress.** `/paper-writer:init` (project setup) is coming next; until
-> then, create the layout below by hand.
+> **Status: v0.1 in progress.**
 
 ## Install
 
@@ -17,10 +16,38 @@ against an author style guide.
 
 To try a local checkout: `claude --plugin-dir /path/to/paper-writer`.
 
+## Quick start
+
+In an empty directory for your paper:
+
+```
+/paper-writer:init "Acme: Fast Congestion Control for Datacenter Networks"
+```
+
+`init` asks for the target venues and the style profile, then creates:
+
+- `paper-writer.toml`
+- `paper/main.tex`: an anonymous-review ACM `sigconf` skeleton, with section stubs and an empty `ref.bib`
+- the ACM template in `paper/`
+- an empty paper vault (`vault/Root.md`, `vault/Vault Layout.md`)
+- `outline/`, `design/` and `guidelines/`
+
+It offers to add the hosts the skills need to `.claude/settings.json`. It never overwrites
+existing files, so it is safe to re-run.
+
+The template (`acmart.cls`, `ACM-Reference-Format.bst` and the biblatex style files) is not
+bundled with the plugin:
+
+- `init` downloads the current release from CTAN and builds the class with `tex`.
+- If that fails, it copies the class from your local TeX installation.
+- Use `--template tex`, `ctan` or `none` to choose the source yourself.
+- To upgrade the template later, delete `paper/acmart.cls` and run `/paper-writer:init --template ctan`.
+
 ## Skills
 
 | Skill | What it does |
 |---|---|
+| `/paper-writer:init ["Name: Subtitle"]` | Scaffold a paper project: config, ACM template, `main.tex`, empty vault, network allowlist |
 | `/paper-writer:paper-search <topics>` | Search Semantic Scholar across top venues and insert relevant papers into the vault |
 | `/paper-writer:paper-add <title>` | Add one specific paper to the vault |
 | `/paper-writer:paper-search-verify` | Audit vault papers: abstracts, venue names, relevance notes |
@@ -114,10 +141,14 @@ phrases under `### Filler phrases to never use` and similar headings) into `rule
 
 ## Network access
 
-The skills call these hosts; allow them in your project's `.claude/settings.json`
-(`permissions.allow` with `WebFetch(domain:...)`, and the sandbox network allowlist if you
-use the sandbox): `api.semanticscholar.org`, `api.crossref.org`, `doi.org`, `dl.acm.org`,
-`arxiv.org`.
+The skills call these hosts: `api.semanticscholar.org`, `api.crossref.org`, `doi.org`,
+`dl.acm.org`, `arxiv.org`. `/paper-writer:init` offers to add them to your project's
+`.claude/settings.json`, both as `permissions.allow` entries (`WebFetch(domain:...)`) and as
+sandbox network hosts. `pw.py init allow-network` does the same from a shell.
+
+`init` itself downloads the ACM template from `mirrors.ctan.org`, which redirects to a
+mirror near you. If the sandbox blocks that download, `init` falls back to your local TeX
+installation.
 
 ## Requirements
 
