@@ -26,6 +26,17 @@ style
     import-legacy <style.md> [--out rules.toml]
                               Derive rules.toml from an old-format style guide
 
+init [options]                    Scaffold a project in the cwd (never overwrites files)
+    --title T            \title for main.tex (default "System: A Descriptive Subtitle")
+    --field F            paper.field
+    --venues A,B,C       paper.target_venues
+    --profile NAME       style.profile
+    --vault DIR          paths.vault (default "vault")
+    --template SRC       auto (CTAN, then local TeX) | ctan | tex | none
+init allow-network [--print]      Add the skills' hosts to .claude/settings.json
+                                  (--print: output the merged settings, write nothing)
+init profiles                     User-level style profiles as JSON
+
 vault [--vault DIR] <command>     Vault root: --vault, else $PAPER_VAULT_ROOT, else paths.vault
     load_tree | find_doi <doi> | list_paper_files | papers_under <topic>
     sanitize <title> | write_paper <json> | attach_paper <leaf-path> <title>
@@ -208,6 +219,35 @@ def style_cli(cfg: Config, argv: list[str]) -> int:
     return 0
 
 
+def init_cli(argv: list[str]) -> int:
+    from pwlib import init as initlib
+    root = Path.cwd()
+    try:
+        if argv[:1] == ["allow-network"]:
+            _json(initlib.allow_network(root, write="--print" not in argv[1:]))
+            return 0
+        if argv[:1] == ["profiles"]:
+            _json(initlib.list_profiles())
+            return 0
+        opts = {"--title": "title", "--field": "field", "--venues": "target_venues",
+                "--profile": "profile", "--vault": "vault", "--template": "template"}
+        kw: dict = {}
+        i = 0
+        while i < len(argv):
+            flag = argv[i]
+            if flag not in opts or i + 1 >= len(argv):
+                return _usage("init [--title T] [--field F] [--venues A,B] [--profile P] "
+                              "[--vault DIR] [--template auto|ctan|tex|none] | init allow-network [--print] | init profiles")
+            val = argv[i + 1]
+            kw[opts[flag]] = [v.strip() for v in val.split(",") if v.strip()] if flag == "--venues" else val
+            i += 2
+        _json(initlib.init_project(root, **kw))
+    except initlib.InitError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv or argv[0] in ("-h", "--help", "help"):
@@ -217,6 +257,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if group == "venue":
             return venue_cli(rest)
+        if group == "init":
+            return init_cli(rest)
         cfg = Config.load()
         cfg.emit_warnings()
         if group == "vault":
@@ -228,7 +270,7 @@ def main(argv: list[str] | None = None) -> int:
     except (ConfigError, stylelib.StyleError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
-    return _usage("<config|venue|style|vault> ...")
+    return _usage("<config|venue|style|vault|init> ...")
 
 
 if __name__ == "__main__":
