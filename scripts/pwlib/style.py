@@ -361,10 +361,32 @@ def _case_like(src: str, repl: str) -> str:
     return first + repl[1:]
 
 
+_INFLECT = ("es", "s", "ed", "d", "ing", "e")
+
+
+def _word_re(word: str) -> str:
+    """Match a word in any regular inflection: "delve" also matches delves/delved/delving,
+    "plays" also matches play/played/playing. Short words are matched exactly."""
+    if len(word) < 4 or not word.isalpha():
+        return re.escape(word)
+    stem, cut = word, ""
+    for suf in ("ing", "es", "ed", "s", "e"):
+        if word.lower().endswith(suf) and not word.lower().endswith("ss") and len(word) - len(suf) >= 3:
+            stem, cut = word[: -len(suf)], suf
+            break
+    if not cut:
+        return re.escape(word) + r"(?:s|es|ed|d|ing)?"
+    alts = [re.escape(word), re.escape(stem) + "(?:" + "|".join(_INFLECT) + ")"]
+    if cut in ("s", "es", "ed", "ing"):
+        alts.append(re.escape(stem))  # plays -> play, played -> play
+    return "(?:" + "|".join(alts) + ")"
+
+
 def _phrase_re(phrase: str) -> re.Pattern:
     left = r"\b" if phrase[:1].isalnum() else ""
     right = r"\b" if phrase[-1:].isalnum() else ""
-    return re.compile(left + re.escape(phrase) + right, re.IGNORECASE)
+    body = "".join(_word_re(t) if t.isalpha() else re.escape(t) for t in re.split(r"([A-Za-z]+)", phrase))
+    return re.compile(left + body + right, re.IGNORECASE)
 
 
 def scan(tex: str, rules: dict) -> dict:
