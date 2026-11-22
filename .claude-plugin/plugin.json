@@ -1,0 +1,10 @@
+{
+  "name": "paper-writer",
+  "version": "0.1.0",
+  "description": "Write systems/networking research papers with Claude Code: an Obsidian related-work vault, Semantic Scholar/Crossref search, citation selection, LaTeX section drafting, and style review against an author style profile.",
+  "author": { "name": "Eugene Chai", "url": "https://github.com/blackterrarium" },
+  "homepage": "https://github.com/blackterrarium/paper-writer",
+  "repository": "https://github.com/blackterrarium/paper-writer",
+  "license": "MIT",
+  "keywords": ["academic-writing", "latex", "research", "citations", "obsidian", "semantic-scholar", "systems", "networking"]
+}
