@@ -44,6 +44,18 @@ Search for conference papers matching "$ARGUMENTS" using the Crossref API.
 
    **USENIX conferences (OSDI, NSDI, USENIX ATC, FAST, USENIX Security):** USENIX publishes its proceedings open access on usenix.org and does not register DOIs for them with Crossref, so these papers are generally **not** in Crossref. Tell the user so and point them to the program page (`https://www.usenix.org/conference/<venue><yy>/technical-sessions`, e.g. `nsdi24`) or DBLP (`https://dblp.org/db/conf/<venue>/<venue><yyyy>.html`), then stop. Only the rare USENIX events co-published with ACM appear under `10.1145`.
 
+   **CoNEXT 2023 and later:** the main-track papers are journal articles in *Proceedings of the ACM on Networking* (PACMNET, ISSN `2834-5509`), volume = year − 2022, issues `CoNEXT1` to `CoNEXT4`. The proceedings search in step 2 only finds the workshop and companion papers. Instead, run step 2 with this loop in place of the `for prefix …` loop, then skip the `key_terms` filter (set `key_terms = []`):
+
+   ```python
+   volume = str(<year> - 2022)
+   for offset in [0, 100, 200]:
+       url = f"https://api.crossref.org/works?filter=issn:2834-5509,type:journal-article,from-pub-date:{<year> - 1},until-pub-date:{<year> + 1}&rows=100&offset={offset}&select=title,DOI,author,container-title,volume,issue"
+       items = fetch(url).get("message", {}).get("items", [])
+       if not items:
+           break
+       all_items.extend(i for i in items if i.get("volume") == volume and (i.get("issue") or "").startswith("CoNEXT"))
+   ```
+
    For other conferences, use the abbreviation directly in the search query. If the publisher is unknown, try `10.1145` first, then `10.1109` if no results are found.
 
 2. Use `curl` and `python3` to query the Crossref API. Fetch up to 300 results across multiple pages. Determine the correct `doi_prefixes` list based on step 1. Use this bash command pattern:

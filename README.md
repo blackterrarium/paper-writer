@@ -5,7 +5,7 @@ research papers. It keeps related work in an Obsidian-style vault, finds papers 
 Semantic Scholar and Crossref, selects citations, drafts LaTeX sections, and reviews prose
 against an author style guide.
 
-> **Status: v0.1 in progress.**
+> **Status: v0.1.0.** Scope: systems and networking venues.
 
 ## Install
 

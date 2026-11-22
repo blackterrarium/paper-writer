@@ -203,3 +203,28 @@ def test_author_cite_stopwords():
     out = style.scan("However we show this. The results show that. Recall that we prove it.\n",
                      rules_with({"deterministic": {"author_name_citations": "forbid"}}))
     assert out["summary"]["author-cite"] == 0
+
+
+@pytest.mark.parametrize("phrase,text,hit", [
+    ("delve", "The system delves into the trace.", "delves"),
+    ("delve", "We delved deeper.", "delved"),
+    ("plays a crucial role", "Caches play a crucial role here.", "play a crucial role"),
+    ("plays a crucial role", "It played a crucial role.", "played a crucial role"),
+    ("landscape", "the research landscapes of", "landscapes"),
+    ("groundbreaking", "a groundbreaking design", "groundbreaking"),
+    ("It is important to note that", "It is important to note that x.", "It is important to note that"),
+])
+def test_scan_matches_inflections(phrase, text, hit):
+    out = style.scan(text, rules_with({"phrases": {"banned": [phrase], "avoided_transitions": []}}))
+    assert [f["original"] for f in out["findings"]] == [hit]
+
+
+@pytest.mark.parametrize("phrase,text", [
+    ("delve", "We develop a model."),
+    ("note that", "This is not that hard."),
+    ("landscape", "a landscaper"),
+    ("unprecedented", "precedented"),
+])
+def test_scan_inflections_stay_word_bounded(phrase, text):
+    out = style.scan(text, rules_with({"phrases": {"banned": [phrase], "avoided_transitions": []}}))
+    assert out["findings"] == []
