@@ -1,0 +1,17 @@
+[project]
+name = "paper-writer-plugin"
+version = "0.1.0"
+description = "Dev tooling for the paper-writer Claude Code plugin (the plugin itself needs no install)"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

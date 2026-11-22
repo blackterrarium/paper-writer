@@ -1,0 +1,12 @@
+{
+  "name": "paper-writer",
+  "description": "Marketplace for the paper-writer Claude Code plugin",
+  "owner": { "name": "Eugene Chai", "url": "https://github.com/blackterrarium" },
+  "plugins": [
+    {
+      "name": "paper-writer",
+      "source": "./",
+      "description": "Write systems/networking research papers: related-work vault, citation selection, LaTeX drafting, style review."
+    }
+  ]
+}
