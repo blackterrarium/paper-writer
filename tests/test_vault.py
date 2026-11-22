@@ -8,7 +8,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from pw import Vault, main  # noqa: E402
+from pw import main  # noqa: E402
+from pwlib.vault import Vault  # noqa: E402
 
 PW = ROOT / "scripts" / "pw.py"
 
@@ -111,14 +112,14 @@ def test_create_topic_and_write_paper(vault: Vault):
 
 
 def test_cli_roundtrip(vault: Vault, capsys):
-    assert main(["--vault", str(vault.root), "vault", "list_paper_files"]) == 0
+    assert main(["vault", "--vault", str(vault.root), "list_paper_files"]) == 0
     assert capsys.readouterr().out.count(".md") == 2
 
-    assert main(["--vault", str(vault.root), "vault", "papers_under", "vault/Datacenter Transport.md"]) == 0
+    assert main(["vault", "--vault", str(vault.root), "papers_under", "vault/Datacenter Transport.md"]) == 0
     assert capsys.readouterr().out.strip().endswith("Acme - Fast Congestion Control.md")
 
-    assert main(["--vault", str(vault.root), "vault", "find_doi"]) == 2
-    assert main(["--vault", str(vault.root), "vault", "bogus"]) == 2
+    assert main(["vault", "--vault", str(vault.root), "find_doi"]) == 2
+    assert main(["vault", "--vault", str(vault.root), "bogus"]) == 2
 
 
 def test_cli_env_var_and_script_entrypoint(vault: Vault):

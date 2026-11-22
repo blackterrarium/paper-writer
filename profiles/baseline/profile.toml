@@ -1,0 +1,5 @@
+name = "baseline"
+author = "paper-writer plugin"
+version = "1"
+generator = "hand-written"
+description = "Neutral default style for systems and networking papers. Not any author's voice."

@@ -1,0 +1,28 @@
+# Baseline rules for the paper-writer plugin. A profile's rules.toml is merged on top of
+# these defaults: lists are unioned, tables merge, scalar values replace.
+
+[deterministic]
+em_dash = "allow"
+author_name_citations = "warn"
+prose_semicolons = "allow"
+
+[phrases]
+banned = [
+  "It is important to note that",
+  "It is worth noting that",
+  "It should be noted that",
+  "delve",
+  "landscape",
+  "plays a crucial role",
+  "groundbreaking",
+  "revolutionary",
+  "cutting-edge",
+  "unprecedented",
+  "game changer",
+  "may potentially",
+]
+avoided_transitions = [
+  "Moreover,",
+  "Additionally,",
+  "Needless to say,",
+]
