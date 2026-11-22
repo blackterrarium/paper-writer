@@ -23,7 +23,28 @@ CASES = json.loads((ROOT / "tests" / "data" / "venue_cases.json").read_text())
 # Deliberate fixes relative to the old tables.
 INTENTIONAL = {
     "Proceedings of the High-Performance Computer Architecture Conference": "HPCA",  # was mislabelled ISCA
+    "Network and Distributed System Security Symposium": "NDSS",  # was mislabelled USENIX Security
+    "2024 IEEE Globecom Workshops (GC Wkshps)": "GLOBECOM Workshops",  # was the parent conference
 }
+
+
+@pytest.mark.parametrize("venue,year,expected", [
+    ("Conference on Emerging Network Experiment and Technology", 2020, "CoNEXT 2020"),
+    ("Proceedings of the 16th International Conference on emerging Networking EXperiments and Technologies", None, "CoNEXT"),
+    ("EuroP4@CoNEXT", 2020, "EuroP4 2020"),
+    ("Proceedings of the CoNEXT Workshop on the Polymorphic Network", 2025, "CoNEXT Workshops 2025"),
+    ("ACM SIGCOMM Workshop on Hot Topics in Networking", None, "SIGCOMM Workshops"),
+    ("Network and Distributed System Security Symposium", 2025, "NDSS 2025"),
+    ("USENIX Security Symposium", 2024, "USENIX Security 2024"),
+    ("someone@example", None, ""),
+])
+def test_short_name_fixes(venue, year, expected):
+    assert venues.short_name(venue, year) == expected
+
+
+def test_ndss_stays_in_search_scope():
+    # NDSS papers were in scope before (via the generic "security symposium" fragment).
+    assert venues.is_search_target("Network and Distributed System Security Symposium")
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c["venue"][:50] or "<empty>")
