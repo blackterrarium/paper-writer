@@ -42,9 +42,7 @@ Search for conference papers matching "$ARGUMENTS" using the Crossref API.
    - MICRO → "IEEE/ACM International Symposium on Microarchitecture"
    - ISCA → "International Symposium on Computer Architecture"
 
-   **USENIX conferences (DOI prefix `10.1145` — often registered through ACM):**
-   - OSDI → "USENIX Symposium on Operating Systems Design and Implementation"
-   - NSDI → "USENIX Symposium on Networked Systems Design and Implementation"
+   **USENIX conferences (OSDI, NSDI, USENIX ATC, FAST, USENIX Security):** USENIX publishes its proceedings open access on usenix.org and does not register DOIs for them with Crossref, so these papers are generally **not** in Crossref. Tell the user so and point them to the program page (`https://www.usenix.org/conference/<venue><yy>/technical-sessions`, e.g. `nsdi24`) or DBLP (`https://dblp.org/db/conf/<venue>/<venue><yyyy>.html`), then stop. Only the rare USENIX events co-published with ACM appear under `10.1145`.
 
    For other conferences, use the abbreviation directly in the search query. If the publisher is unknown, try `10.1145` first, then `10.1109` if no results are found.
 
@@ -52,7 +50,20 @@ Search for conference papers matching "$ARGUMENTS" using the Crossref API.
 
 ```bash
 python3 << 'PYEOF'
-import json, subprocess, urllib.parse, sys
+import json, subprocess, urllib.parse, sys, time
+
+def fetch(url, attempts=5):
+    """GET a Crossref URL; retry on rate limiting or bad responses, fail loudly."""
+    for i in range(attempts):
+        r = subprocess.run(["curl", "-s", "-w", "\n%{http_code}", url], capture_output=True, text=True)
+        body, _, code = r.stdout.rpartition("\n")
+        if code == "200":
+            try:
+                return json.loads(body)
+            except json.JSONDecodeError:
+                pass
+        time.sleep(2 ** i)
+    sys.exit(f"Crossref request failed after {attempts} attempts (last HTTP status {code or 'none'}): {url}")
 
 conference_query = "<full conference name with year>"
 query_encoded = urllib.parse.quote(conference_query)
@@ -62,8 +73,7 @@ all_items = []
 for prefix in doi_prefixes:
     for offset in [0, 100, 200]:
         url = f"https://api.crossref.org/works?query.container-title={query_encoded}&filter=prefix:{prefix},type:proceedings-article&rows=100&offset={offset}&select=title,DOI,author,container-title"
-        result = subprocess.run(["curl", "-s", url], capture_output=True, text=True)
-        data = json.loads(result.stdout)
+        data = fetch(url)
         items = data.get("message", {}).get("items", [])
         if not items:
             break

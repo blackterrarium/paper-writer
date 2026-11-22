@@ -11,6 +11,8 @@ far too many venue names, and venues outside the systems/networking scope).
 
 from __future__ import annotations
 
+import re
+
 VENUES: list[tuple[str, str, bool]] = [
     ("mobile computing and networking", "MobiCom", True),
     ("mobicom", "MobiCom", True),
@@ -21,7 +23,7 @@ VENUES: list[tuple[str, str, bool]] = [
     ("embedded networked sensor", "SenSys", True),
     ("sensys", "SenSys", True),
     ("internet measurement", "IMC", True),
-    ("emerging networking experiments", "CoNEXT", True),
+    ("emerging network", "CoNEXT", True),  # S2 also spells it "Emerging Network Experiment"
     ("conext", "CoNEXT", True),
     ("architectural support for programming", "ASPLOS", True),
     ("asplos", "ASPLOS", True),
@@ -68,6 +70,7 @@ VENUES: list[tuple[str, str, bool]] = [
     ("operating systems design", "OSDI", True),
     ("annual technical conference", "ATC", True),
     ("usenix annual", "ATC", True),
+    ("network and distributed system security", "NDSS", True),  # before the generic "security symposium"
     ("security symposium", "USENIX Security", True),
     ("file and storage", "FAST", True),
     ("fast", "FAST", False),
@@ -80,15 +83,26 @@ VENUES: list[tuple[str, str, bool]] = [
 ]
 
 
+_AT_WORKSHOP = re.compile(r"^\s*([A-Za-z][A-Za-z0-9-]*)@")
+
+
 def short_name(venue: str, year: str | int | None = None) -> str:
     """Short venue name for a full venue string, with ` {year}` appended if given.
     Empty string if no fragment matches.
     """
-    lower = (venue or "").lower()
-    for frag, abbrev, _ in VENUES:
-        if frag in lower:
-            return f"{abbrev} {year}" if year else abbrev
-    return ""
+    venue = venue or ""
+    lower = venue.lower()
+    at = _AT_WORKSHOP.match(venue)
+    if at and short_name(venue[at.end(1) + 1:]):
+        # "EuroP4@CoNEXT": a workshop at a known conference keeps its own name
+        abbrev = at.group(1)
+    else:
+        abbrev = next((a for frag, a, _ in VENUES if frag in lower), "")
+        if not abbrev:
+            return ""
+        if ("workshop" in lower or "wkshp" in lower) and "workshop" not in abbrev.lower():
+            abbrev += " Workshops"
+    return f"{abbrev} {year}" if year else abbrev
 
 
 def is_search_target(venue: str) -> bool:
